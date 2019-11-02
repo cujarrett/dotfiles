@@ -1,9 +1,12 @@
-# Path to your oh-my-zsh installation.
 export ZSH="/Users/matt-jarrett/.oh-my-zsh"
 
 ZSH_THEME=""
 
 alias "k"="kubectl"
+
+alias "suggestionsOn"="_zsh_autosuggest_enable"
+alias "suggestionsOff"="_zsh_autosuggest_disable"
+
 alias "reload"="source=~/.zshrc"
 
 plugins=(git)
@@ -15,3 +18,4 @@ prompt pure
 
 source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
