@@ -2,11 +2,14 @@ export ZSH="/Users/matt-jarrett/.oh-my-zsh"
 
 ZSH_THEME=""
 
+alias "suggestionsOn"="_zsh_autosuggest_enable"
+alias "suggestionsOff"="_zsh_autosuggest_disable"
+
 alias "k"="kubectl"
 alias "kn"="kubectl config set-context --current --namespace "
 
-alias "suggestionsOn"="_zsh_autosuggest_enable"
-alias "suggestionsOff"="_zsh_autosuggest_disable"
+alias "python"="python3"
+alias "pip"="pip3"
 
 alias "reload"="source=~/.zshrc"
 
