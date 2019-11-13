@@ -3,6 +3,7 @@ export ZSH="/Users/matt-jarrett/.oh-my-zsh"
 ZSH_THEME=""
 
 alias "k"="kubectl"
+alias "kn"="kubectl config set-context --current --namespace "
 
 alias "suggestionsOn"="_zsh_autosuggest_enable"
 alias "suggestionsOff"="_zsh_autosuggest_disable"
