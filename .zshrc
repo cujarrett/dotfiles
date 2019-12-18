@@ -7,6 +7,7 @@ alias "suggestionsOff"="_zsh_autosuggest_disable"
 
 alias "k"="kubectl"
 alias "kn"="kubectl config set-context --current --namespace "
+alias "kgc"="kubectl config get-contexts"
 
 alias "python"="python3"
 alias "pip"="pip3"
