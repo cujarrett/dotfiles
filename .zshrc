@@ -15,6 +15,8 @@ alias "tf"="terraform"
 alias "python"="python3"
 alias "pip"="pip3"
 
+alias gitnevermind="git reset --soft HEAD~1"
+
 alias "reload"="source=~/.zshrc"
 
 plugins=(git)
