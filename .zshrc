@@ -31,3 +31,4 @@ autoload -U promptinit; promptinit
 prompt pure
 
 source /Users/matt-jarrett/.oh-my-zsh/custom/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
