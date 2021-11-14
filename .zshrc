@@ -19,12 +19,15 @@ alias "gitnevermind"="git reset --soft HEAD~1"
 
 alias "reload"="source=~/.zshrc"
 
-plugins=(git)
+plugins=(
+  git
+  zsh-autosuggestions
+)
 
 source $ZSH/oh-my-zsh.sh
 
+fpath+=$HOME/.zsh/pure
 autoload -U promptinit; promptinit
 prompt pure
 
-source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /Users/matt-jarrett/.oh-my-zsh/custom/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
