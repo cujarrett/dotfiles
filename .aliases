@@ -1,0 +1,11 @@
+alias "cleanraws"="clean-up-raws.sh"
+
+alias "vssettings"="open -a 'Visual Studio Code' \"$HOME/Library/Application Support/Code/User/settings.json\""
+
+alias k="kubectl"
+
+alias "python"="python3"
+alias "pip"="pip3"
+
+alias "tf"="terraform"
+
