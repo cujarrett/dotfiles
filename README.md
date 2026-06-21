@@ -8,10 +8,10 @@ Personal shell/editor dotfiles for macOS.
 - `.zprofile` - Homebrew shell environment init
 - `.aliases` - shell aliases loaded by `.zshrc`
 - `.vimrc` - Vim config
-- `.npmrc` - npm defaults
 
 ## Setup
 
+### Initial Setup
 ```bash
 # Backup current files first
 mv ~/.zshrc ~/.zshrc.bak 2>/dev/null || true
@@ -23,9 +23,24 @@ cp .zshrc ~/.zshrc
 cp .zprofile ~/.zprofile
 cp .aliases ~/.aliases
 cp .vimrc ~/.vimrc
-cp .npmrc ~/.npmrc
 source ~/.zshrc
 ```
+
+### Updating Dotfiles
+Use the `justfile` to sync current machine versions:
+
+```bash
+# Update all dotfiles from home directory
+just update-all
+
+# Or update specific files
+just update-aliases
+just update-zshrc
+just update-vimrc
+just update-zprofile
+```
+
+These commands copy files locally but don't commit them — review the changes and commit manually when ready.
 
 ## Note
 
