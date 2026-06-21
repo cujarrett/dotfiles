@@ -11,6 +11,8 @@ alias "tf"="terraform"
 
 alias "kioskreboot"='ssh pi@192.168.10.100 "sudo systemctl restart getty@tty1.service"'
 
+alias "homelabcert"='k get secret local-lab-ca-secret -n cert-manager -o jsonpath="{.data.tls\.crt}" | base64 -d > ~/Desktop/local-lab-ca.crt && echo "Certificate saved to ~/Desktop/local-lab-ca.crt. On iOS and ipadOS: Settings > General > VPN & Device Management to install, then Settings > VPN to enable"'
+
 kcheck() {
   echo "=== Cluster Nodes ==="
   k get nodes -o wide --no-headers | awk '{print $1, $2, $5}'
