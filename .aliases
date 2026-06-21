@@ -9,3 +9,33 @@ alias "pip"="pip3"
 
 alias "tf"="terraform"
 
+alias "kioskreboot"='ssh pi@192.168.10.100 "sudo systemctl restart getty@tty1.service"'
+
+kcheck() {
+  echo "=== Cluster Nodes ==="
+  k get nodes -o wide --no-headers | awk '{print $1, $2, $5}'
+
+  echo ""
+  echo "=== Argo Apps ==="
+  k get applications -n argocd --no-headers | awk '{print $1, $2, $3}'
+
+  echo ""
+  echo "=== Unhealthy Pods ==="
+  k get pods -A --no-headers | grep -v "Running\|Completed" | awk '{print $1, $2, $4}'
+
+  echo ""
+  echo "=== Crossplane XRs ==="
+  k get composite --no-headers 2>/dev/null | awk '{print $1, $2}'
+
+  echo ""
+  echo "=== Unhealthy Crossplane XRs ==="
+  k get composite --no-headers 2>/dev/null | awk '$2!="True" {print $1, $2}'
+
+  echo ""
+  echo "=== Unbound PVCs ==="
+  k get pvc -A --no-headers | grep -v Bound | awk '{print $1, $2, $3}'
+
+  echo ""
+  echo "=== Orphaned Longhorn Volumes ==="
+  k get volumes -n longhorn-system --no-headers 2>/dev/null | awk '$3=="detached" && $7=="" {print $1, $3}'
+}

@@ -4,7 +4,7 @@ export ZSH="$HOME/.oh-my-zsh"
 typeset -U path PATH
 path=(
   /opt/homebrew/opt/node@24/bin
-  /usr/local/opt/ruby/bin
+  /opt/homebrew/opt/ruby/bin
   $path
 )
 
@@ -38,7 +38,7 @@ if [ -z "$POWERLINE_GO_BIN" ] || [ ! -x "$POWERLINE_GO_BIN" ]; then
 fi
 
 function powerline_precmd() {
-    PS1="$("$POWERLINE_GO_BIN" -error $? -modules "cwd,git,exit" -cwd-mode plain -cwd-max-depth 3 -git-mode simple -max-width 70 -theme default)"
+    PS1="$("$POWERLINE_GO_BIN" -error $? -modules "cwd,git" -cwd-mode plain -cwd-max-depth 3 -git-mode simple -max-width 70 -theme default)"
 }
 
 function install_powerline_precmd() {
