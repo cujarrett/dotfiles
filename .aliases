@@ -1,17 +1,25 @@
-alias "cleanraws"="clean-up-raws.sh"
+alias cleanraws="clean-up-raws.sh"
 
-alias "vssettings"="open -a 'Visual Studio Code' \"$HOME/Library/Application Support/Code/User/settings.json\""
+alias vssettings="open -a 'Visual Studio Code' \"$HOME/Library/Application Support/Code/User/settings.json\""
 
 alias k="kubectl"
 
-alias "python"="python3"
-alias "pip"="pip3"
+alias python="python3"
+alias pip="pip3"
 
-alias "tf"="terraform"
+alias tf="terraform"
 
-alias "kioskreboot"='ssh pi@192.168.10.100 "sudo systemctl restart getty@tty1.service"'
+alias kioskreboot='ssh pi@192.168.10.100 "sudo systemctl restart getty@tty1.service"'
 
-alias "homelabcert"='k get secret local-lab-ca-secret -n cert-manager -o jsonpath="{.data.tls\.crt}" | base64 -d > ~/Desktop/local-lab-ca.crt && echo "Certificate saved to ~/Desktop/local-lab-ca.crt. On iOS and ipadOS: Settings > General > VPN & Device Management to install, then Settings > VPN to enable"'
+alias homelabcert='k get secret local-lab-ca-secret -n cert-manager -o jsonpath="{.data.tls\.crt}" | base64 -d > ~/Desktop/local-lab-ca.crt && echo "Certificate saved to ~/Desktop/local-lab-ca.crt. On iPad: Settings > General > VPN & Device Management to install, then Settings > VPN to enable"'
+
+# Screenshots the ctrl-1 kiosk display and opens it.
+#   1. ssh pi@... - runs the quoted command remotely on the Pi
+#   2. rm -f ... - deletes any leftover screenshot from a previous run
+#   3. DISPLAY=:0 scrot ... - takes the screenshot; DISPLAY=:0 is required because an SSH session has no display set otherwise
+#   4. scp pi@...:file file - copies the screenshot from the Pi down to this Mac (remote path : local path)
+#   5. open file - opens the local copy in Preview
+alias kioskscreenshot='ssh pi@192.168.10.100 "rm -f /tmp/kiosk*.png && DISPLAY=:0 scrot /tmp/kiosk.png" && scp pi@192.168.10.100:/tmp/kiosk.png /tmp/kiosk.png && open /tmp/kiosk.png'
 
 kcheck() {
   echo "=== Cluster Nodes ==="
