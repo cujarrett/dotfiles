@@ -35,7 +35,7 @@ source $ZSH/oh-my-zsh.sh
 POWERLINE_GO_BIN="$(command -v powerline-go 2>/dev/null)"
 
 function powerline_precmd() {
-    PS1="$("$POWERLINE_GO_BIN" -error $? -modules "cwd,git,exit" -cwd-mode plain -cwd-max-depth 3 -git-mode simple -max-width 70 -theme default)"
+    PS1="$("$POWERLINE_GO_BIN" -error $? -modules "cwd,git" -cwd-mode plain -cwd-max-depth 3 -git-mode simple -max-width 70 -theme default)"
 }
 
 function install_powerline_precmd() {
