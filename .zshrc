@@ -5,6 +5,7 @@ typeset -U path PATH
 path=(
   /opt/homebrew/opt/node@24/bin
   /opt/homebrew/opt/ruby/bin
+  $HOME/go/bin
   $path
 )
 
@@ -20,25 +21,21 @@ TIMER_PRECISION=2
 
 plugins=(
   git
+  timer
   zsh-autosuggestions
   tmux
 )
 
 source $ZSH/oh-my-zsh.sh
 
-DEFAULT_USER=$USER
-
 #Alias
 [ -f ~/.aliases ] && source ~/.aliases
 
 # powerline-go prompt (README style)
-POWERLINE_GO_BIN="${GOPATH:+$GOPATH/bin/powerline-go}"
-if [ -z "$POWERLINE_GO_BIN" ] || [ ! -x "$POWERLINE_GO_BIN" ]; then
-  POWERLINE_GO_BIN="$(command -v powerline-go 2>/dev/null)"
-fi
+POWERLINE_GO_BIN="$(command -v powerline-go 2>/dev/null)"
 
 function powerline_precmd() {
-    PS1="$("$POWERLINE_GO_BIN" -error $? -modules "cwd,git" -cwd-mode plain -cwd-max-depth 3 -git-mode simple -max-width 70 -theme default)"
+    PS1="$("$POWERLINE_GO_BIN" -error $? -modules "cwd,git,exit" -cwd-mode plain -cwd-max-depth 3 -git-mode simple -max-width 70 -theme default)"
 }
 
 function install_powerline_precmd() {
