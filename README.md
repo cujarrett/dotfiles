@@ -40,7 +40,7 @@ just update-vimrc
 just update-zprofile
 ```
 
-These commands copy files locally but don't commit them — review the changes and commit manually when ready.
+These commands copy files locally but don't commit them - review the changes and commit manually when ready.
 
 ## Note
 

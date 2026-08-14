@@ -50,7 +50,7 @@ kcheck() {
   k get volumes -n longhorn-system --no-headers 2>/dev/null | awk '$3=="detached" && $7=="" {print $1, $3}'
 }
 
-# Reports WordPress version drift across every homelab site — running vs pinned
+# Reports WordPress version drift across every homelab site - running vs pinned
 # vs latest image vs latest release. Reads the pinned variant straight out of the
 # composition, so it never needs updating when the PHP pin moves.
 alias wpstatus='~/Developer/homelab/docs/wordpress/status-wordpress.sh'
