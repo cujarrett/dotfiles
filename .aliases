@@ -50,7 +50,46 @@ kcheck() {
   k get volumes -n longhorn-system --no-headers 2>/dev/null | awk '$3=="detached" && $7=="" {print $1, $3}'
 }
 
-# Reports WordPress version drift across every homelab site - running vs pinned
+# Reports WordPress version drift across every homelab site — running vs pinned
 # vs latest image vs latest release. Reads the pinned variant straight out of the
 # composition, so it never needs updating when the PHP pin moves.
 alias wpstatus='~/Developer/homelab/docs/wordpress/status-wordpress.sh'
+
+# Walks every git repo under ~/Developer and flags uncommitted or unpushed work.
+# Silent for a clean repo - only prints repos that need attention.
+devcheck() {
+  local root="${1:-$HOME/Developer}"
+  local found=0
+
+  while IFS= read -r -d '' gitdir; do
+    local repo="${gitdir%/.git}"
+    local name="${repo#"$root"/}"
+
+    ( cd "$repo" || exit 0
+
+      # A repo with no commits yet (freshly `git init`'d) has no HEAD - nothing to flag.
+      git rev-parse HEAD >/dev/null 2>&1 || exit 0
+
+      local dirty ahead upstream noupstream=0
+      dirty=$(git status --porcelain 2>/dev/null)
+      upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)
+      if [ -n "$upstream" ]; then
+        ahead=$(git rev-list --count '@{u}..HEAD' 2>/dev/null)
+      else
+        noupstream=1
+      fi
+
+      if [ -n "$dirty" ] || { [ -n "$ahead" ] && [ "$ahead" != "0" ]; } || [ "$noupstream" = "1" ]; then
+        echo "=== $name ==="
+        [ -n "$dirty" ] && git status --short
+        if [ -n "$ahead" ] && [ "$ahead" != "0" ]; then
+          echo "  $ahead commit(s) ahead of $upstream, not pushed"
+        fi
+        [ "$noupstream" = "1" ] && echo "  no upstream tracking branch set - nothing ever pushed from this branch"
+        echo ""
+      fi
+    )
+  done < <(find "$root" -type d -name .git -not -path '*/node_modules/*' -print0 2>/dev/null)
+
+  echo "devcheck: scanned repos under $root"
+}
