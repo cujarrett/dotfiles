@@ -50,8 +50,10 @@ kcheck() {
   bad=$(k get pods -A --no-headers | grep -v "Running\|Completed" | awk '{print $1, $2, $4}')
   _kcheck_line "Pods" "$bad"
 
-  total=$(k get composite --no-headers 2>/dev/null | wc -l | tr -d ' ')
-  bad=$(k get composite --no-headers 2>/dev/null | awk '$2!="True" || $3!="True" {print $1, "SYNCED="$2, "READY="$3}')
+  # XRs are namespaced, so without -A this only sees the default namespace and
+  # reports 0 while every real XR sits in its own workspace namespace.
+  total=$(k get composite -A --no-headers 2>/dev/null | wc -l | tr -d ' ')
+  bad=$(k get composite -A --no-headers 2>/dev/null | awk '$3!="True" || $4!="True" {print $1"/"$2, "SYNCED="$3, "READY="$4}')
   _kcheck_line "Crossplane XRs" "$bad" "$total total"
 
   bad=$(k get pvc -A --no-headers | grep -v Bound | awk '{print $1, $2, $3}')
@@ -67,10 +69,13 @@ kcheck() {
   # over the Tailscale link, 30-40s. Naming the AWS + Entra kinds explicitly turns
   # it into one list call per kind, under 2s, and jq reads the Ready condition
   # directly instead of guessing at column position across differently-shaped tables.
-  bad=$(k get \
-    role.iam.aws.upbound.io,bucket.s3.aws.upbound.io,table.dynamodb.aws.upbound.io,replicationgroup.elasticache.aws.upbound.io,\
-application.applications.azuread.upbound.io,approle.applications.azuread.upbound.io,federatedidentitycredential.applications.azuread.upbound.io,\
-principal.serviceprincipals.azuread.upbound.io,roleassignment.app.azuread.upbound.io \
+  # The .m. groups are the namespaced variants the compositions render now; the
+  # cluster-scoped originals are never created any more, so listing them found
+  # nothing. -A because these live in the XR's namespace.
+  bad=$(k get -A \
+    role.iam.aws.m.upbound.io,bucket.s3.aws.m.upbound.io,table.dynamodb.aws.m.upbound.io,replicationgroup.elasticache.aws.m.upbound.io,\
+application.applications.azuread.m.upbound.io,approle.applications.azuread.m.upbound.io,federatedidentitycredential.applications.azuread.m.upbound.io,\
+principal.serviceprincipals.azuread.m.upbound.io,roleassignment.app.azuread.m.upbound.io \
     -o json 2>/dev/null | jq -r '
       .items[] | select([.status.conditions[]? | select(.type=="Ready" and .status=="True")] | length == 0)
       | .kind + "/" + .metadata.name')
