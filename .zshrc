@@ -6,6 +6,7 @@ path=(
   /opt/homebrew/opt/node@24/bin
   /opt/homebrew/opt/ruby/bin
   $HOME/go/bin
+  "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
   $path
 )
 
@@ -30,6 +31,9 @@ source $ZSH/oh-my-zsh.sh
 
 #Alias
 [ -f ~/.aliases ] && source ~/.aliases
+
+export EDITOR="code -w"
+export VISUAL="$EDITOR"
 
 # powerline-go prompt (README style)
 POWERLINE_GO_BIN="$(command -v powerline-go 2>/dev/null)"
