@@ -7,6 +7,7 @@ update-all:
     just update-vimrc
     just update-zprofile
     just update-zshrc
+    just update-gitconfig
 
 # Copy .aliases
 update-aliases:
@@ -27,3 +28,9 @@ update-zprofile:
 update-zshrc:
     cp ~/.zshrc .zshrc
     @echo "✓ .zshrc updated"
+
+# Copy .gitconfig and the global ignore file it points at
+update-gitconfig:
+    sed 's|excludesfile = /Users/matt-jarrett/.gitignore_global|excludesfile = ~/.gitignore_global|' ~/.gitconfig > .gitconfig
+    cp ~/.gitignore_global .gitignore_global
+    @echo "✓ .gitconfig updated"
