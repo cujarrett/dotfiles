@@ -1,12 +1,16 @@
-# Two files: diff them. One file: diff it against its last commit (HEAD).
+# Two files: diff them against each other.
+# Any other count: diff each file against its last commit (HEAD), one tab per file.
 function vsdiff {
-  if [ $# -eq 1 ]; then
-    local dir="$(dirname "$1")" name="$(basename "$1")"
-    local old="$(mktemp -d)/HEAD-$name"
-    git -C "$dir" show "HEAD:./$name" > "$old" && code --diff "$old" "$1"
-  else
-    code --diff "$@"
+  if [ $# -eq 2 ]; then
+    code --diff "$1" "$2"
+    return
   fi
+  local file dir name old
+  for file in "$@"; do
+    dir="$(dirname "$file")" name="$(basename "$file")"
+    old="$(mktemp -d)/HEAD-$name"
+    git -C "$dir" show "HEAD:./$name" > "$old" && code --diff "$old" "$file"
+  done
 }
 
 alias k="kubectl"
