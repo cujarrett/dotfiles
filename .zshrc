@@ -4,7 +4,6 @@ export ZSH="$HOME/.oh-my-zsh"
 typeset -U path PATH
 path=(
   /opt/homebrew/opt/node@24/bin
-  /opt/homebrew/opt/ruby/bin
   $HOME/go/bin
   "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
   $path
