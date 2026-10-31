@@ -1,13 +1,18 @@
-alias cleanraws="clean-up-raws.sh"
-
-alias vssettings="open -a 'Visual Studio Code' \"$HOME/Library/Application Support/Code/User/settings.json\""
+# Two files: diff them. One file: diff it against its last commit (HEAD).
+function vsdiff {
+  if [ $# -eq 1 ]; then
+    local dir="$(dirname "$1")" name="$(basename "$1")"
+    local old="$(mktemp -d)/HEAD-$name"
+    git -C "$dir" show "HEAD:./$name" > "$old" && code --diff "$old" "$1"
+  else
+    code --diff "$@"
+  fi
+}
 
 alias k="kubectl"
 
 alias python="python3"
 alias pip="pip3"
-
-alias tf="terraform"
 
 alias kioskreboot='ssh pi@192.168.10.100 "sudo systemctl restart getty@tty1.service"'
 
@@ -20,83 +25,6 @@ alias homelabcert='k get secret local-lab-ca-secret -n cert-manager -o jsonpath=
 #   4. scp pi@...:file file - copies the screenshot from the Pi down to this Mac (remote path : local path)
 #   5. open file - opens the local copy in Preview
 alias kioskscreenshot='ssh pi@192.168.10.100 "rm -f /tmp/kiosk*.png && DISPLAY=:0 scrot /tmp/kiosk.png" && scp pi@192.168.10.100:/tmp/kiosk.png /tmp/kiosk.png && open /tmp/kiosk.png'
-
-# One line per check: green + a count when it's clean, red + the offending rows
-# indented underneath when it's not. A wall of "=== Section ===" headers over
-# mostly-empty output makes the one broken thing hard to spot; this doesn't.
-_kcheck_line() {
-  local label="$1" bad="$2" note="$3"
-  if [ -z "$bad" ]; then
-    printf "\033[32m✓\033[0m %s%s\n" "$label" "${note:+ ($note)}"
-  else
-    printf "\033[31m✗\033[0m %s%s\n" "$label" "${note:+ ($note)}"
-    echo "$bad" | sed 's/^/      /'
-  fi
-}
-
-kcheck() {
-  local total bad
-
-  total=$(k get nodes --no-headers | wc -l | tr -d ' ')
-  bad=$(k get nodes --no-headers | awk '$2!="Ready" {print $1, $2}')
-  _kcheck_line "Cluster Nodes" "$bad" "$total total"
-
-  # "applications" is ambiguous - Crossplane's Entra provider registers a CRD by
-  # the same plural name, so the bare short name silently picks the wrong one.
-  total=$(k get applications.argoproj.io -n argocd --no-headers | wc -l | tr -d ' ')
-  bad=$(k get applications.argoproj.io -n argocd --no-headers | awk '$2!="Synced" || $3!="Healthy" {print $1, $2, $3}')
-  _kcheck_line "Argo Apps" "$bad" "$total total"
-
-  bad=$(k get pods -A --no-headers | grep -v "Running\|Completed" | awk '{print $1, $2, $4}')
-  _kcheck_line "Pods" "$bad"
-
-  # XRs are namespaced, so without -A this only sees the default namespace and
-  # reports 0 while every real XR sits in its own workspace namespace.
-  total=$(k get composite -A --no-headers 2>/dev/null | wc -l | tr -d ' ')
-  bad=$(k get composite -A --no-headers 2>/dev/null | awk '$3!="True" || $4!="True" {print $1"/"$2, "SYNCED="$3, "READY="$4}')
-  _kcheck_line "Crossplane XRs" "$bad" "$total total"
-
-  bad=$(k get pvc -A --no-headers | grep -v Bound | awk '{print $1, $2, $3}')
-  _kcheck_line "PVCs Bound" "$bad"
-
-  bad=$(k get volumes -n longhorn-system --no-headers 2>/dev/null | awk '$3=="detached" && $7=="" {print $1, $3}')
-  _kcheck_line "Longhorn Volumes" "$bad"
-
-  bad=$(k get providers.pkg.crossplane.io --no-headers 2>/dev/null | awk '$3!="True" {print $1, "HEALTHY="$3}')
-  _kcheck_line "Crossplane Providers" "$bad"
-
-  # "k get managed" walks every registered CRD via discovery - 100 API round trips
-  # over the Tailscale link, 30-40s. Naming the AWS + Entra kinds explicitly turns
-  # it into one list call per kind, under 2s, and jq reads the Ready condition
-  # directly instead of guessing at column position across differently-shaped tables.
-  # The .m. groups are the namespaced variants the compositions render now; the
-  # cluster-scoped originals are never created any more, so listing them found
-  # nothing. -A because these live in the XR's namespace.
-  bad=$(k get -A \
-    role.iam.aws.m.upbound.io,bucket.s3.aws.m.upbound.io,table.dynamodb.aws.m.upbound.io,replicationgroup.elasticache.aws.m.upbound.io,\
-application.applications.azuread.m.upbound.io,approle.applications.azuread.m.upbound.io,federatedidentitycredential.applications.azuread.m.upbound.io,\
-principal.serviceprincipals.azuread.m.upbound.io,roleassignment.app.azuread.m.upbound.io \
-    -o json 2>/dev/null | jq -r '
-      .items[] | select([.status.conditions[]? | select(.type=="Ready" and .status=="True")] | length == 0)
-      | .kind + "/" + .metadata.name')
-  _kcheck_line "AWS / Entra Managed Resources" "$bad"
-
-  # "certificates" is another ambiguous short name - Crossplane's Entra provider
-  # registers a CRD by the same plural, so this must be fully qualified too.
-  #
-  # jq, not awk on --no-headers: a blank DENIED/SECRET column collapses in
-  # whitespace-split table output, so fixed field numbers land on the wrong value
-  # depending on the row. Reading .status.conditions avoids that entirely.
-  bad=$(k get certificates.cert-manager.io -A -o json 2>/dev/null | jq -r '
-    .items[] | select([.status.conditions[]? | select(.type=="Ready" and .status=="True")] | length == 0)
-    | .metadata.namespace + " " + .metadata.name')
-  _kcheck_line "Certificates" "$bad"
-
-  bad=$(k get certificaterequests.cert-manager.io -A -o json 2>/dev/null | jq -r '
-    .items[] | select([.status.conditions[]? | select(.type=="Ready" and .status=="True")] | length == 0)
-    | .metadata.namespace + " " + .metadata.name')
-  _kcheck_line "CertificateRequests" "$bad"
-}
 
 # Reports WordPress version drift across every homelab site — running vs pinned
 # vs latest image vs latest release. Reads the pinned variant straight out of the
@@ -141,3 +69,5 @@ devcheck() {
 
   echo "devcheck: scanned repos under $root"
 }
+
+alias cleanraws="clean-up-raws.sh"
