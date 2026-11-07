@@ -1,0 +1,83 @@
+# Starship prompt in nightshade colors. .zshrc points STARSHIP_CONFIG here.
+# Line 1: repo/dir › git › kube context ............ duration (if >2s)
+# Line 2: ❯   (green when the last command succeeded, red when it failed)
+
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = true
+palette = "theme"
+
+format = """
+[](block1)\
+$directory\
+[](fg:block1 bg:block2)\
+$git_branch\
+$git_status\
+[](fg:block2 bg:block3)\
+$kubernetes\
+[](fg:block3)\
+$fill\
+$cmd_duration
+$character"""
+
+[palettes.theme]
+# nightshade: purple-black with the green prompt. Change these to recolor the blocks.
+block1 = "#5cf28e"   # folder
+text1  = "#120b1d"
+block2 = "#1e5c37"   # git
+text2  = "#b6ffcf"
+block3 = "#2a1440"   # kube context
+text3  = "#8be9fd"
+dim3   = "#a58bd6"   # namespace
+green  = "#50fa7b"
+yellow = "#f1fa8c"
+red    = "#ff5555"
+
+[directory]
+style = "bold fg:text1 bg:block1"
+format = "[ $path ]($style)[$read_only]($read_only_style)"
+# Inside a repo the path starts at the repo name; elsewhere it shows the last 3 folders.
+read_only = "󰌾 "
+read_only_style = "fg:red bg:block1"
+truncation_length = 3
+truncation_symbol = ""
+truncate_to_repo = true
+
+[git_branch]
+symbol = ""
+format = "[ $symbol $branch](fg:text2 bg:block2)"
+
+[git_status]
+format = "[( $all_status$ahead_behind) ](fg:text2 bg:block2)"
+stashed = "⚑"
+modified = "!"
+untracked = "?"
+staged = "+"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+
+# Always show which cluster kubectl will hit.
+[kubernetes]
+disabled = false
+symbol = "󱃾"
+# The namespace only appears once one is set (e.g. with kubens), in a dimmer color.
+format = "[ $symbol $context](fg:text3 bg:block3)[( $namespace) ](fg:dim3 bg:block3)"
+
+# k3s names its context "default"; show it as "homelab".
+# Add another [[kubernetes.contexts]] block for each extra cluster you want to rename.
+[[kubernetes.contexts]]
+context_pattern = "^default$"
+context_alias = "homelab"
+
+[fill]
+symbol = " "
+
+[cmd_duration]
+min_time = 2_000
+format = "[ $duration ](fg:yellow)"
+
+[character]
+success_symbol = "[❯](bold fg:green)"
+error_symbol = "[❯](bold fg:red)"
+vimcmd_symbol = "[❮](bold fg:block1)"
